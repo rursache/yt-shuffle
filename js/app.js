@@ -172,14 +172,18 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                     onReady: function () {
                         playerReady = true;
                         // Let autoplay: 1 attempt unmuted playback.
-                        // If browser blocks it, no PLAYING state fires —
-                        // fall back to muted autoplay after 2s.
+                        // Only fall back to muted autoplay if the player
+                        // is stuck on UNSTARTED (browser blocked autoplay).
+                        // BUFFERING or PLAYING means autoplay is working.
                         mutedFallbackTimer = setTimeout(function () {
                             if (!autoplayStarted) {
-                                ytPlayer.mute();
-                                ytPlayer.playVideo();
+                                var state = ytPlayer.getPlayerState();
+                                if (state === YT.PlayerState.UNSTARTED || state === -1) {
+                                    ytPlayer.mute();
+                                    ytPlayer.playVideo();
+                                }
                             }
-                        }, 2000);
+                        }, 1500);
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
