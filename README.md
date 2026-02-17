@@ -31,6 +31,15 @@ Everything runs client-side in your browser. No backend, no tracking, no account
 
 Or link directly: `https://rursache.github.io/yt-shuffle/?pid=YOUR_PLAYLIST_ID`
 
+## Forking
+
+YouTube API requests are proxied through a Cloudflare Worker so the API key is never exposed in client-side code. If you fork this repo, you'll need to set up your own worker:
+
+1. Create a YouTube Data API v3 key in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Create a [Cloudflare Worker](https://workers.cloudflare.com/) and deploy the proxy code from `worker/worker.js`
+3. Add your YouTube API key as a secret named `YOUTUBE_API_KEY` in the worker settings
+4. Update `WORKER_URL` in `js/app.js` to point to your worker URL
+
 ## Credits
 
 Inspired by [ytplr](https://ytplr.bitbucket.io/).

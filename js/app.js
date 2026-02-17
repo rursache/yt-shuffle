@@ -1,4 +1,4 @@
-const API_KEY = '__YOUTUBE_API_KEY__';
+const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
 
 (function () {
     'use strict';
@@ -97,7 +97,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         let pageToken = '';
 
         do {
-            const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${encodeURIComponent(playlistId)}&key=${API_KEY}${pageToken ? '&pageToken=' + pageToken : ''}`;
+            const url = `${WORKER_URL}?playlistId=${encodeURIComponent(playlistId)}${pageToken ? '&pageToken=' + pageToken : ''}`;
             const res = await fetch(url);
 
             if (!res.ok) {
@@ -162,22 +162,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         events.forEach(function (e) { document.addEventListener(e, handleInteraction); });
     }
 
-    // --- Media Session API (browser media controls) ---
-    function initMediaSession() {
-        if (!('mediaSession' in navigator)) return;
-        navigator.mediaSession.setActionHandler('previoustrack', playPrev);
-        navigator.mediaSession.setActionHandler('nexttrack', playNext);
-    }
-
-    function updateMediaSession(video) {
-        if (!('mediaSession' in navigator)) return;
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: video.title,
-            artist: video.channel,
-            artwork: video.thumbnail ? [{ src: video.thumbnail, sizes: '320x180', type: 'image/jpeg' }] : [],
-        });
-    }
-
     function createPlayer(videoId, hasUserGesture) {
         return new Promise((resolve) => {
             if (ytPlayer) {
@@ -209,10 +193,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            // Re-register after YouTube iframe sets its own
-                            setTimeout(initMediaSession, 100);
-                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
@@ -235,7 +215,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         nowPlayingTitle.textContent = video.title;
         nowPlayingChannel.textContent = video.channel;
         nowPlayingDate.textContent = formatDate(video.publishedAt);
-        updateMediaSession(video);
 
         if (playerReady && ytPlayer) {
             ytPlayer.loadVideoById(video.videoId);
@@ -401,10 +380,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             nowPlayingTitle.textContent = firstVideo.title;
             nowPlayingChannel.textContent = firstVideo.channel;
             nowPlayingDate.textContent = formatDate(firstVideo.publishedAt);
-            updateMediaSession(firstVideo);
 
             await createPlayer(firstVideo.videoId, hasUserGesture);
-            initMediaSession();
             syncPlaylistHeight();
         } catch (err) {
             setLoading(false);

@@ -24,9 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject API key
-        run: sed -i "s/__YOUTUBE_API_KEY__/${{ secrets.YOUTUBE_API_KEY }}/g" js/app.js
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
