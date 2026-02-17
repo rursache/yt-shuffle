@@ -335,10 +335,22 @@ body {
     line-height: 1.4;
 }
 
+.now-playing-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+
 .now-playing-channel {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    margin-top: 4px;
+}
+
+.now-playing-date {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    flex-shrink: 0;
 }
 
 /* Controls */
@@ -506,28 +518,6 @@ body {
     overflow: hidden;
 }
 
-.playlist-item-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 2px;
-}
-
-.playlist-item-channel {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.playlist-item-date {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    flex-shrink: 0;
-}
 
 /* Hidden utility */
 .hidden {

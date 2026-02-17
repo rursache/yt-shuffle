@@ -20,6 +20,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     const themeToggle = document.getElementById('theme-toggle');
     const inputSection = document.getElementById('input-section');
     const changePlaylistBtn = document.getElementById('change-playlist-btn');
+    const nowPlayingDate = document.getElementById('now-playing-date');
     const playerColumn = document.getElementById('player-column');
     const playlistColumn = document.getElementById('playlist-column');
     const shuffleAgainBtn = document.getElementById('shuffle-again-btn');
@@ -206,6 +207,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
 
         nowPlayingTitle.textContent = video.title;
         nowPlayingChannel.textContent = video.channel;
+        nowPlayingDate.textContent = formatDate(video.publishedAt);
 
         if (playerReady && ytPlayer) {
             ytPlayer.loadVideoById(video.videoId);
@@ -259,16 +261,11 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             li.className = 'playlist-item' + (index === currentIndex ? ' active' : '');
             li.dataset.index = index;
 
-            const dateStr = formatDate(video.publishedAt);
             li.innerHTML = `
                 <span class="playlist-item-index">${index + 1}</span>
                 <img class="playlist-item-thumb" src="${escapeAttr(video.thumbnail)}" alt="" loading="lazy">
                 <div class="playlist-item-info">
                     <div class="playlist-item-title">${escapeHtml(video.title)}</div>
-                    <div class="playlist-item-meta">
-                        <span class="playlist-item-channel">${escapeHtml(video.channel)}</span>
-                        ${dateStr ? `<span class="playlist-item-date">${dateStr}</span>` : ''}
-                    </div>
                 </div>
             `;
 
