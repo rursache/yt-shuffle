@@ -169,9 +169,15 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 events: {
                     onReady: function () {
                         playerReady = true;
-                        // Muted autoplay is always allowed by browsers
-                        ytPlayer.mute();
+                        // Try normal autoplay first; if browser blocks it,
+                        // fall back to muted autoplay
                         ytPlayer.playVideo();
+                        setTimeout(function () {
+                            if (ytPlayer.getPlayerState && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                                ytPlayer.mute();
+                                ytPlayer.playVideo();
+                            }
+                        }, 500);
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
@@ -180,12 +186,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            // Unmute once playback has started
-                            if (ytPlayer.isMuted()) {
-                                ytPlayer.unMute();
-                            }
-                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
@@ -372,6 +372,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             const firstVideo = shuffledVideos[0];
             nowPlayingTitle.textContent = firstVideo.title;
             nowPlayingChannel.textContent = firstVideo.channel;
+            nowPlayingDate.textContent = formatDate(firstVideo.publishedAt);
 
             await createPlayer(firstVideo.videoId);
             syncPlaylistHeight();
