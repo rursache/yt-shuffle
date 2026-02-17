@@ -209,6 +209,10 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            // Re-register after YouTube iframe sets its own
+                            setTimeout(initMediaSession, 100);
+                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
