@@ -158,9 +158,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 playerReady = false;
             }
 
-            var autoplayStarted = false;
-            var mutedFallbackTimer = null;
-
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
@@ -171,19 +168,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 events: {
                     onReady: function () {
                         playerReady = true;
-                        // Let autoplay: 1 attempt unmuted playback.
-                        // Only fall back to muted autoplay if the player
-                        // is stuck on UNSTARTED (browser blocked autoplay).
-                        // BUFFERING or PLAYING means autoplay is working.
-                        mutedFallbackTimer = setTimeout(function () {
-                            if (!autoplayStarted) {
-                                var state = ytPlayer.getPlayerState();
-                                if (state === YT.PlayerState.UNSTARTED || state === -1) {
-                                    ytPlayer.mute();
-                                    ytPlayer.playVideo();
-                                }
-                            }
-                        }, 1500);
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
@@ -192,13 +176,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            autoplayStarted = true;
-                            if (mutedFallbackTimer) {
-                                clearTimeout(mutedFallbackTimer);
-                                mutedFallbackTimer = null;
-                            }
-                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
