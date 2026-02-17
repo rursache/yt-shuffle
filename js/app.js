@@ -168,6 +168,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 events: {
                     onReady: function () {
                         playerReady = true;
+                        ytPlayer.playVideo();
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
