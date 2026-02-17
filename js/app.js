@@ -152,17 +152,14 @@ const API_KEY = '__YOUTUBE_API_KEY__';
 
     // Unmute on first user interaction (for muted autoplay on URL loads)
     function setupAutoUnmute() {
+        var events = ['mousedown', 'pointerdown', 'keydown', 'touchstart'];
         function handleInteraction() {
             if (ytPlayer && ytPlayer.isMuted()) {
                 ytPlayer.unMute();
             }
-            document.removeEventListener('click', handleInteraction);
-            document.removeEventListener('keydown', handleInteraction);
-            document.removeEventListener('touchstart', handleInteraction);
+            events.forEach(function (e) { document.removeEventListener(e, handleInteraction); });
         }
-        document.addEventListener('click', handleInteraction);
-        document.addEventListener('keydown', handleInteraction);
-        document.addEventListener('touchstart', handleInteraction);
+        events.forEach(function (e) { document.addEventListener(e, handleInteraction); });
     }
 
     function createPlayer(videoId, hasUserGesture) {
