@@ -293,7 +293,10 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         playlistColumn.style.maxHeight = playerColumn.offsetHeight + 'px';
     }
 
-    window.addEventListener('resize', syncPlaylistHeight);
+    window.addEventListener('resize', () => {
+        playlistColumn.style.maxHeight = '';
+        requestAnimationFrame(syncPlaylistHeight);
+    });
 
     // --- Helpers ---
     function escapeHtml(str) {
