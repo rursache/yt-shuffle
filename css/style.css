@@ -263,7 +263,7 @@ body {
 /* Content Grid */
 .content-grid {
     display: grid;
-    grid-template-columns: 1fr 380px;
+    grid-template-columns: 1fr 420px;
     gap: 24px;
     align-items: start;
 }
@@ -276,8 +276,8 @@ body {
 
 .player-wrapper {
     position: relative;
-    width: 90%;
-    padding-bottom: 50.625%;
+    width: 100%;
+    padding-bottom: 56.25%;
     background: #000;
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -359,7 +359,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    max-height: 400px;
+    max-height: 500px;
 }
 
 .playlist-header {
