@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Shuffle - YouTube Playlist Shuffler</title>
+    <meta name="description" content="Truly shuffle and play YouTube playlists with Fisher-Yates algorithm">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://www.youtube.com">
+    <link rel="preconnect" href="https://i.ytimg.com">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <h1 class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0C.488 3.45.029 5.804 0 12c.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0C23.512 20.55 23.971 18.196 24 12c-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 4-8 4z"/>
+                </svg>
+                YT Shuffle
+            </h1>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="input-section">
+            <div class="input-wrapper">
+                <input type="text" id="playlist-input" class="playlist-input" placeholder="Paste YouTube playlist URL or ID..." autocomplete="off">
+                <button id="shuffle-btn" class="shuffle-btn">Shuffle &amp; Play</button>
+            </div>
+        </section>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading playlist...</p>
+        </div>
+
+        <div id="error" class="error hidden"></div>
+
+        <section id="content" class="content hidden">
+            <div class="content-grid">
+                <div class="player-column">
+                    <div class="player-wrapper">
+                        <div id="player"></div>
+                    </div>
+                    <div class="now-playing">
+                        <h2 id="now-playing-title" class="now-playing-title"></h2>
+                        <p id="now-playing-channel" class="now-playing-channel"></p>
+                    </div>
+                    <div class="controls">
+                        <button id="prev-btn" class="control-btn" aria-label="Previous">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                        </button>
+                        <button id="reshuffle-btn" class="control-btn reshuffle-btn" aria-label="Reshuffle">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+                        </button>
+                        <button id="next-btn" class="control-btn" aria-label="Next">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="playlist-column">
+                    <div class="playlist-header">
+                        <h3 id="playlist-count" class="playlist-count"></h3>
+                        <input type="text" id="filter-input" class="filter-input" placeholder="Filter videos...">
+                    </div>
+                    <ul id="playlist-list" class="playlist-list"></ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <a href="https://github.com/rursache/yt-shuffle" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
