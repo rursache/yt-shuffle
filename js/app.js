@@ -181,9 +181,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
-                        if (event.data === YT.PlayerState.PLAYING && ytPlayer.isMuted()) {
-                            ytPlayer.unMute();
-                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
