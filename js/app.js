@@ -150,7 +150,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         });
     }
 
-    function createPlayer(videoId, autoplay) {
+    function createPlayer(videoId, hasUserGesture) {
         return new Promise((resolve) => {
             if (ytPlayer) {
                 ytPlayer.destroy();
@@ -161,14 +161,18 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
-                    autoplay: autoplay ? 1 : 0,
+                    autoplay: 1,
                     rel: 0,
                     modestbranding: 1,
                 },
                 events: {
                     onReady: function () {
                         playerReady = true;
-                        if (autoplay) ytPlayer.playVideo();
+                        if (!hasUserGesture) {
+                            // No user gesture (URL load): mute to allow autoplay
+                            ytPlayer.mute();
+                        }
+                        ytPlayer.playVideo();
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
