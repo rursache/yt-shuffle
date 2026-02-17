@@ -379,6 +379,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     const params = getUrlParams();
     if (params.pid) {
         playlistInput.value = params.pid;
+        inputSection.classList.add('hidden');
+        changePlaylistBtn.classList.remove('hidden');
         loadPlaylist(params.pid, params.autostart);
     }
 })();
