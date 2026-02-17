@@ -150,7 +150,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         });
     }
 
-    function createPlayer(videoId) {
+    function createPlayer(videoId, autoplay) {
         return new Promise((resolve) => {
             if (ytPlayer) {
                 ytPlayer.destroy();
@@ -161,14 +161,14 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
-                    autoplay: 1,
+                    autoplay: autoplay ? 1 : 0,
                     rel: 0,
                     modestbranding: 1,
                 },
                 events: {
                     onReady: function () {
                         playerReady = true;
-                        ytPlayer.playVideo();
+                        if (autoplay) ytPlayer.playVideo();
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
@@ -327,7 +327,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     }
 
     // --- Main Load Flow ---
-    async function loadPlaylist(rawInput) {
+    async function loadPlaylist(rawInput, hasUserGesture) {
         hideError();
         const playlistId = extractPlaylistId(rawInput);
         if (!playlistId) {
@@ -365,7 +365,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             nowPlayingChannel.textContent = firstVideo.channel;
             nowPlayingDate.textContent = formatDate(firstVideo.publishedAt);
 
-            await createPlayer(firstVideo.videoId);
+            await createPlayer(firstVideo.videoId, hasUserGesture);
             syncPlaylistHeight();
         } catch (err) {
             setLoading(false);
@@ -376,13 +376,13 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     // --- Event Listeners ---
     shuffleBtn.addEventListener('click', () => {
         const val = playlistInput.value.trim();
-        if (val) loadPlaylist(val);
+        if (val) loadPlaylist(val, true);
     });
 
     playlistInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const val = playlistInput.value.trim();
-            if (val) loadPlaylist(val);
+            if (val) loadPlaylist(val, true);
         }
     });
 
@@ -405,6 +405,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         playlistInput.value = params.pid;
         inputSection.classList.add('hidden');
         changePlaylistBtn.classList.remove('hidden');
-        loadPlaylist(params.pid);
+        loadPlaylist(params.pid, false);
     }
 })();
