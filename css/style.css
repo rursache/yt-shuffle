@@ -89,6 +89,7 @@ body {
     align-items: center;
     gap: 8px;
     color: var(--accent);
+    text-decoration: none;
 }
 
 .logo-icon {
