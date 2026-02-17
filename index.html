@@ -39,12 +39,15 @@
     </header>
 
     <main class="main">
-        <section class="input-section">
+        <section id="input-section" class="input-section">
+            <p class="input-tagline">A true shuffle for public YouTube playlists — runs entirely in your browser.</p>
             <div class="input-wrapper">
                 <input type="text" id="playlist-input" class="playlist-input" placeholder="Paste YouTube playlist URL or ID..." autocomplete="off">
                 <button id="shuffle-btn" class="shuffle-btn">Shuffle &amp; Play</button>
             </div>
         </section>
+
+        <button id="change-playlist-btn" class="change-playlist-btn hidden">Change Playlist</button>
 
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>

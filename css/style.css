@@ -233,6 +233,32 @@ body {
     text-align: center;
 }
 
+/* Input tagline */
+.input-tagline {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+/* Change Playlist Button */
+.change-playlist-btn {
+    display: block;
+    margin: 0 auto 24px;
+    padding: 8px 20px;
+    background: var(--bg-secondary);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.change-playlist-btn:hover {
+    background: var(--bg-tertiary);
+}
+
 /* Content Grid */
 .content-grid {
     display: grid;
@@ -249,8 +275,8 @@ body {
 
 .player-wrapper {
     position: relative;
-    width: 100%;
-    padding-bottom: 56.25%;
+    width: 90%;
+    padding-bottom: 50.625%;
     background: #000;
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -332,7 +358,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    max-height: calc(100vh - 120px);
+    max-height: 400px;
 }
 
 .playlist-header {

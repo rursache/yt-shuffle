@@ -18,6 +18,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     const filterInput = document.getElementById('filter-input');
     const playlistList = document.getElementById('playlist-list');
     const themeToggle = document.getElementById('theme-toggle');
+    const inputSection = document.getElementById('input-section');
+    const changePlaylistBtn = document.getElementById('change-playlist-btn');
 
     // State
     let originalVideos = [];
@@ -265,10 +267,12 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             item.classList.toggle('active', idx === currentIndex);
         });
 
-        // Scroll active into view
+        // Scroll so the active item is the second visible element
         const activeEl = playlistList.querySelector('.playlist-item.active');
         if (activeEl) {
-            activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            const prevSibling = activeEl.previousElementSibling;
+            const scrollTarget = prevSibling || activeEl;
+            scrollTarget.scrollIntoView({ block: 'start', behavior: 'smooth' });
         }
     }
 
@@ -326,6 +330,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
 
             setLoading(false);
             contentEl.classList.remove('hidden');
+            inputSection.classList.add('hidden');
+            changePlaylistBtn.classList.remove('hidden');
 
             await loadYouTubeAPI();
 
@@ -362,6 +368,12 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     reshuffleBtn.addEventListener('click', handleReshuffle);
 
     filterInput.addEventListener('input', renderPlaylist);
+
+    changePlaylistBtn.addEventListener('click', () => {
+        inputSection.classList.remove('hidden');
+        changePlaylistBtn.classList.add('hidden');
+        playlistInput.focus();
+    });
 
     // --- Init from URL ---
     const params = getUrlParams();
