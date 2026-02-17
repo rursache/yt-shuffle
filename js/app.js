@@ -65,7 +65,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         const params = new URLSearchParams(window.location.search);
         return {
             pid: params.get('pid'),
-            autostart: params.has('autostart'),
         };
     }
 
@@ -336,7 +335,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     }
 
     // --- Main Load Flow ---
-    async function loadPlaylist(rawInput, autoplay) {
+    async function loadPlaylist(rawInput) {
         hideError();
         const playlistId = extractPlaylistId(rawInput);
         if (!playlistId) {
@@ -385,13 +384,13 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     // --- Event Listeners ---
     shuffleBtn.addEventListener('click', () => {
         const val = playlistInput.value.trim();
-        if (val) loadPlaylist(val, true);
+        if (val) loadPlaylist(val);
     });
 
     playlistInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const val = playlistInput.value.trim();
-            if (val) loadPlaylist(val, true);
+            if (val) loadPlaylist(val);
         }
     });
 
@@ -414,6 +413,6 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         playlistInput.value = params.pid;
         inputSection.classList.add('hidden');
         changePlaylistBtn.classList.remove('hidden');
-        loadPlaylist(params.pid, params.autostart);
+        loadPlaylist(params.pid);
     }
 })();

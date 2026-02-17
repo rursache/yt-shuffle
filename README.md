@@ -19,7 +19,7 @@ Everything runs client-side in your browser. No backend, no tracking, no account
 - Sequential playback with auto-advance
 - Reshuffle without interrupting the current video
 - Filter/search within the playlist
-- Shareable URLs (`?pid=PLAYLIST_ID&autostart`)
+- Shareable URLs (`?pid=PLAYLIST_ID`)
 - Light/dark theme (follows system preference, manual toggle persisted)
 - Responsive layout for desktop and mobile
 
@@ -29,7 +29,7 @@ Everything runs client-side in your browser. No backend, no tracking, no account
 2. Paste a YouTube playlist URL or ID
 3. Click **Shuffle & Play**
 
-Or link directly: `https://rursache.github.io/yt-shuffle/?pid=YOUR_PLAYLIST_ID&autostart`
+Or link directly: `https://rursache.github.io/yt-shuffle/?pid=YOUR_PLAYLIST_ID`
 
 ## Credits
 
