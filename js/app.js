@@ -22,6 +22,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     const changePlaylistBtn = document.getElementById('change-playlist-btn');
     const playerColumn = document.getElementById('player-column');
     const playlistColumn = document.getElementById('playlist-column');
+    const shuffleAgainBtn = document.getElementById('shuffle-again-btn');
 
     // State
     let originalVideos = [];
@@ -399,6 +400,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     prevBtn.addEventListener('click', playPrev);
     nextBtn.addEventListener('click', playNext);
     reshuffleBtn.addEventListener('click', handleReshuffle);
+    shuffleAgainBtn.addEventListener('click', handleReshuffle);
 
     filterInput.addEventListener('input', renderPlaylist);
 

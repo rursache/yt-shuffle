@@ -271,9 +271,9 @@ body {
 
 /* Change Playlist Button */
 .change-playlist-btn {
-    padding: 6px 14px;
-    margin-right: 16px;
-    background: var(--bg-secondary);
+    padding: 8px 14px;
+    margin-right: 24px;
+    background: none;
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -402,9 +402,30 @@ body {
     gap: 8px;
 }
 
+.playlist-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .playlist-count {
     font-size: 0.95rem;
     font-weight: 600;
+}
+
+.shuffle-again-btn {
+    padding: 4px 12px;
+    background: none;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.shuffle-again-btn:hover {
+    background: var(--bg-tertiary);
 }
 
 .filter-input {
