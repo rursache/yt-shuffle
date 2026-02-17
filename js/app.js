@@ -96,7 +96,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         let pageToken = '';
 
         do {
-            const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${encodeURIComponent(playlistId)}&key=${API_KEY}${pageToken ? '&pageToken=' + pageToken : ''}`;
+            const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${encodeURIComponent(playlistId)}&key=${API_KEY}${pageToken ? '&pageToken=' + pageToken : ''}`;
             const res = await fetch(url);
 
             if (!res.ok) {
@@ -118,6 +118,7 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                     thumbnail: item.snippet.thumbnails?.medium?.url
                         || item.snippet.thumbnails?.default?.url
                         || '',
+                    publishedAt: item.contentDetails?.videoPublishedAt || '',
                 }));
 
             allItems = allItems.concat(items);
@@ -257,12 +258,16 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             li.className = 'playlist-item' + (index === currentIndex ? ' active' : '');
             li.dataset.index = index;
 
+            const dateStr = formatDate(video.publishedAt);
             li.innerHTML = `
                 <span class="playlist-item-index">${index + 1}</span>
                 <img class="playlist-item-thumb" src="${escapeAttr(video.thumbnail)}" alt="" loading="lazy">
                 <div class="playlist-item-info">
                     <div class="playlist-item-title">${escapeHtml(video.title)}</div>
-                    <div class="playlist-item-channel">${escapeHtml(video.channel)}</div>
+                    <div class="playlist-item-meta">
+                        <span class="playlist-item-channel">${escapeHtml(video.channel)}</span>
+                        ${dateStr ? `<span class="playlist-item-date">${dateStr}</span>` : ''}
+                    </div>
                 </div>
             `;
 
@@ -307,6 +312,15 @@ const API_KEY = '__YOUTUBE_API_KEY__';
 
     function escapeAttr(str) {
         return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function formatDate(isoStr) {
+        if (!isoStr) return '';
+        const d = new Date(isoStr);
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
     }
 
     function showError(msg) {

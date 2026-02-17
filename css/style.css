@@ -485,13 +485,27 @@ body {
     overflow: hidden;
 }
 
+.playlist-item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 2px;
+}
+
 .playlist-item-channel {
     font-size: 0.75rem;
     color: var(--text-secondary);
-    margin-top: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.playlist-item-date {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* Hidden utility */
