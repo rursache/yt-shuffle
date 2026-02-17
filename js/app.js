@@ -20,6 +20,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     const themeToggle = document.getElementById('theme-toggle');
     const inputSection = document.getElementById('input-section');
     const changePlaylistBtn = document.getElementById('change-playlist-btn');
+    const playerColumn = document.getElementById('player-column');
+    const playlistColumn = document.getElementById('playlist-column');
 
     // State
     let originalVideos = [];
@@ -276,6 +278,14 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         }
     }
 
+    // --- Sync playlist height to player column ---
+    function syncPlaylistHeight() {
+        if (contentEl.classList.contains('hidden')) return;
+        playlistColumn.style.maxHeight = playerColumn.offsetHeight + 'px';
+    }
+
+    window.addEventListener('resize', syncPlaylistHeight);
+
     // --- Helpers ---
     function escapeHtml(str) {
         const div = document.createElement('div');
@@ -339,11 +349,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
             nowPlayingTitle.textContent = firstVideo.title;
             nowPlayingChannel.textContent = firstVideo.channel;
 
-            if (autoplay) {
-                await createPlayer(firstVideo.videoId);
-            } else {
-                await createPlayer(firstVideo.videoId);
-            }
+            await createPlayer(firstVideo.videoId);
+            syncPlaylistHeight();
         } catch (err) {
             setLoading(false);
             showError(err.message || 'Failed to load playlist.');

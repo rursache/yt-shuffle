@@ -359,7 +359,6 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    max-height: 500px;
 }
 
 .playlist-header {
@@ -515,7 +514,7 @@ body {
     }
 
     .playlist-column {
-        max-height: 60vh;
+        max-height: 60vh !important;
     }
 
     .header-inner {
