@@ -150,6 +150,21 @@ const API_KEY = '__YOUTUBE_API_KEY__';
         });
     }
 
+    // Unmute on first user interaction (for muted autoplay on URL loads)
+    function setupAutoUnmute() {
+        function handleInteraction() {
+            if (ytPlayer && ytPlayer.isMuted()) {
+                ytPlayer.unMute();
+            }
+            document.removeEventListener('click', handleInteraction);
+            document.removeEventListener('keydown', handleInteraction);
+            document.removeEventListener('touchstart', handleInteraction);
+        }
+        document.addEventListener('click', handleInteraction);
+        document.addEventListener('keydown', handleInteraction);
+        document.addEventListener('touchstart', handleInteraction);
+    }
+
     function createPlayer(videoId, hasUserGesture) {
         return new Promise((resolve) => {
             if (ytPlayer) {
@@ -169,8 +184,8 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                     onReady: function () {
                         playerReady = true;
                         if (!hasUserGesture) {
-                            // No user gesture (URL load): mute to allow autoplay
                             ytPlayer.mute();
+                            setupAutoUnmute();
                         }
                         ytPlayer.playVideo();
                         resolve();
