@@ -158,6 +158,9 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 playerReady = false;
             }
 
+            var autoplayStarted = false;
+            var mutedFallbackTimer = null;
+
             ytPlayer = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
@@ -168,15 +171,15 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 events: {
                     onReady: function () {
                         playerReady = true;
-                        // Try normal autoplay first; if browser blocks it,
-                        // fall back to muted autoplay
-                        ytPlayer.playVideo();
-                        setTimeout(function () {
-                            if (ytPlayer.getPlayerState && ytPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+                        // Let autoplay: 1 attempt unmuted playback.
+                        // If browser blocks it, no PLAYING state fires —
+                        // fall back to muted autoplay after 2s.
+                        mutedFallbackTimer = setTimeout(function () {
+                            if (!autoplayStarted) {
                                 ytPlayer.mute();
                                 ytPlayer.playVideo();
                             }
-                        }, 500);
+                        }, 2000);
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
@@ -185,6 +188,13 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            autoplayStarted = true;
+                            if (mutedFallbackTimer) {
+                                clearTimeout(mutedFallbackTimer);
+                                mutedFallbackTimer = null;
+                            }
+                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
