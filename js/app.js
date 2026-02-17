@@ -166,6 +166,9 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                 events: {
                     onReady: function () {
                         playerReady = true;
+                        // Muted autoplay is always allowed by browsers
+                        ytPlayer.mute();
+                        ytPlayer.playVideo();
                         resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
@@ -174,6 +177,12 @@ const API_KEY = '__YOUTUBE_API_KEY__';
                         }
                     },
                     onStateChange: function (event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            // Unmute once playback has started
+                            if (ytPlayer.isMuted()) {
+                                ytPlayer.unMute();
+                            }
+                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
