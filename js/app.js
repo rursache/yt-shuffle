@@ -1,4 +1,5 @@
 const API_KEY = '__YOUTUBE_API_KEY__';
+const APP_VERSION = '__APP_VERSION__';
 
 (function () {
     'use strict';
@@ -55,6 +56,14 @@ const API_KEY = '__YOUTUBE_API_KEY__';
     }
 
     themeToggle.addEventListener('click', toggleTheme);
+
+    function versionLabel() {
+        if (APP_VERSION.startsWith('__')) return 'dev';
+        if (/^[0-9a-f]{7,40}$/.test(APP_VERSION)) return `#${APP_VERSION}`;
+        return APP_VERSION;
+    }
+
+    document.querySelector('.logo').title = versionLabel();
 
     function getUrlParams() {
         const params = new URLSearchParams(window.location.search);

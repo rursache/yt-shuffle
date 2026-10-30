@@ -37,9 +37,18 @@ jobs:
           fi
           mkdir _site
           cp -r index.html css js _site/
-          sed -i "s/__YOUTUBE_API_KEY__/$YOUTUBE_API_KEY/" _site/js/app.js
-          if grep -q "__YOUTUBE_API_KEY__" _site/js/app.js; then
-            echo "::error::API key placeholder was not replaced"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            APP_VERSION="$GITHUB_REF_NAME"
+          else
+            APP_VERSION="${GITHUB_SHA::7}"
+          fi
+          if ! printf '%s' "$APP_VERSION" | grep -Eq '^[A-Za-z0-9._-]+$'; then
+            echo "::error::Unsupported version name $APP_VERSION"
+            exit 1
+          fi
+          sed -i "s/__YOUTUBE_API_KEY__/$YOUTUBE_API_KEY/; s/__APP_VERSION__/$APP_VERSION/" _site/js/app.js
+          if grep -Eq "__(YOUTUBE_API_KEY|APP_VERSION)__" _site/js/app.js; then
+            echo "::error::A deploy placeholder was not replaced"
             exit 1
           fi
 
