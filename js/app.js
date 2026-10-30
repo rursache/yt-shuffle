@@ -163,13 +163,19 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         if (youTubeAPIPromise) return youTubeAPIPromise;
         youTubeAPIPromise = new Promise((resolve, reject) => {
             const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            tag.onerror = () => {
+            const fail = () => {
+                clearTimeout(timeout);
                 tag.remove();
                 youTubeAPIPromise = null;
                 reject(new Error('Could not load the YouTube player. Check your connection or content blocker.'));
             };
-            window.onYouTubeIframeAPIReady = resolve;
+            const timeout = setTimeout(fail, 15000);
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.onerror = fail;
+            window.onYouTubeIframeAPIReady = () => {
+                clearTimeout(timeout);
+                resolve();
+            };
             document.head.appendChild(tag);
         });
         return youTubeAPIPromise;
