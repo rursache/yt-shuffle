@@ -38,7 +38,7 @@ The API key is injected into `js/app.js` when the site is deployed, so it ends u
 1. Create a YouTube Data API v3 key in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Restrict it to your site under **Application restrictions → Websites** (for example `https://yourname.github.io/*`) and to the YouTube Data API v3 under **API restrictions**
 3. Add it as a repository secret named `YOUTUBE_API_KEY`
-4. Enable GitHub Pages with **GitHub Actions** as the source and push to `master`
+4. Enable GitHub Pages with **GitHub Actions** as the source, allow `v*` tags under **Settings → Environments → github-pages**, then publish a release or run the **Deploy to GitHub Pages** workflow manually
 
 To try the site locally, replace `__YOUTUBE_API_KEY__` in `js/app.js` with a key that allows your local origin, and don't commit it
 
