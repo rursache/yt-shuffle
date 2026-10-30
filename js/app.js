@@ -32,6 +32,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     let pendingVideoId = null;
     let loadId = 0;
     let currentPlaylistId = null;
+    let isLoading = false;
     let failedVideoIds = new Set();
     let direction = 1;
     let loadController = null;
@@ -213,13 +214,16 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                             const vid = pendingVideoId;
                             pendingVideoId = null;
                             player.loadVideoById(vid);
-                        } else {
+                        } else if (!isLoading) {
                             player.playVideo();
                         }
                         resolve();
                     },
                     onStateChange: function (event) {
                         if (player !== ytPlayer) return;
+                        if (event.data === YT.PlayerState.PLAYING && isLoading) {
+                            player.pauseVideo();
+                        }
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
@@ -379,6 +383,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     }
 
     function setLoading(on) {
+        isLoading = on;
         loadingEl.classList.toggle('hidden', !on);
         shuffleBtn.disabled = on;
     }
@@ -402,6 +407,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         setLoading(true);
         contentEl.classList.add('hidden');
         if (playerReady && ytPlayer) ytPlayer.pauseVideo();
+        pendingVideoId = null;
 
         try {
             const [videos] = await Promise.all([
