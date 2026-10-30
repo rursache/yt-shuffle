@@ -31,6 +31,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     let playerReady = false;
     let pendingVideoId = null;
     let loadId = 0;
+    let currentPlaylistId = null;
     let failedVideoIds = new Set();
     let direction = 1;
     let loadController = null;
@@ -412,6 +413,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                 throw new Error('No playable videos found in this playlist.');
             }
 
+            currentPlaylistId = playlistId;
             originalVideos = videos;
             shuffledVideos = fisherYatesShuffle(originalVideos);
             currentIndex = 0;
@@ -441,6 +443,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             setLoading(false);
             if (shuffledVideos.length > 0) {
                 contentEl.classList.remove('hidden');
+                if (fromHistory) updateUrl(currentPlaylistId, true);
             } else {
                 inputSection.classList.remove('hidden');
                 changePlaylistBtn.classList.add('hidden');
@@ -495,6 +498,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             ytPlayer = null;
             playerReady = false;
         }
+        currentPlaylistId = null;
         originalVideos = [];
         shuffledVideos = [];
         currentIndex = -1;
