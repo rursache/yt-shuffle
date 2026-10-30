@@ -219,7 +219,11 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
                             pendingVideoId = null;
-                            player.loadVideoById(vid);
+                            if (isLoading) {
+                                player.cueVideoById(vid);
+                            } else {
+                                player.loadVideoById(vid);
+                            }
                         } else if (!isLoading) {
                             player.playVideo();
                         }
@@ -415,7 +419,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         setLoading(true);
         contentEl.classList.add('hidden');
         if (playerReady && ytPlayer) ytPlayer.pauseVideo();
-        pendingVideoId = null;
 
         try {
             const [videos] = await Promise.all([
