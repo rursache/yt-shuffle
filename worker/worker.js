@@ -1,6 +1,5 @@
 export default {
   async fetch(request, env) {
-    // CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
@@ -12,12 +11,10 @@ export default {
       });
     }
 
-    // Only allow GET
     if (request.method !== 'GET') {
       return new Response('Method not allowed', { status: 405 });
     }
 
-    // Only allow requests from your site
     const origin = request.headers.get('Origin');
     if (origin && origin !== 'https://rursache.github.io') {
       return new Response('Forbidden', { status: 403 });
@@ -34,7 +31,6 @@ export default {
       });
     }
 
-    // Build YouTube API URL
     let ytUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${encodeURIComponent(playlistId)}&key=${env.YOUTUBE_API_KEY}`;
     if (pageToken) {
       ytUrl += `&pageToken=${encodeURIComponent(pageToken)}`;

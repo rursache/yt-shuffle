@@ -68,7 +68,6 @@ body {
     transition: background-color 0.2s, color 0.2s;
 }
 
-/* Header */
 .header {
     border-bottom: 1px solid var(--border);
     background: var(--bg-secondary);
@@ -166,7 +165,6 @@ body {
     display: none;
 }
 
-/* Main */
 .main {
     flex: 1;
     max-width: 1400px;
@@ -178,7 +176,6 @@ body {
     flex-direction: column;
 }
 
-/* Input Section */
 .input-section {
     margin-bottom: 24px;
 }
@@ -228,7 +225,6 @@ body {
     cursor: not-allowed;
 }
 
-/* Loading */
 .loading {
     text-align: center;
     padding: 48px 0;
@@ -249,7 +245,6 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Error */
 .error {
     max-width: 700px;
     margin: 0 auto 24px;
@@ -261,7 +256,6 @@ body {
     text-align: center;
 }
 
-/* Input tagline */
 .input-tagline {
     text-align: center;
     color: var(--text-secondary);
@@ -269,7 +263,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* Change Playlist Button */
 .change-playlist-btn {
     padding: 8px 14px;
     margin-right: 24px;
@@ -286,13 +279,11 @@ body {
     background: var(--bg-tertiary);
 }
 
-/* Content */
 .content {
     flex: 1;
     min-height: 0;
 }
 
-/* Content Grid */
 .content-grid {
     display: grid;
     grid-template-columns: 1fr 420px;
@@ -301,7 +292,6 @@ body {
     height: 100%;
 }
 
-/* Player */
 .player-column {
     position: sticky;
     top: 24px;
@@ -353,7 +343,6 @@ body {
     flex-shrink: 0;
 }
 
-/* Controls */
 .controls {
     display: flex;
     align-items: center;
@@ -396,7 +385,6 @@ body {
     background: var(--accent-hover);
 }
 
-/* Playlist Column */
 .playlist-column {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -455,7 +443,6 @@ body {
     border-color: var(--accent);
 }
 
-/* Playlist List */
 .playlist-list {
     list-style: none;
     overflow-y: auto;
@@ -518,12 +505,10 @@ body {
     overflow: hidden;
 }
 
-/* Hidden utility */
 .hidden {
     display: none !important;
 }
 
-/* Scrollbar */
 .playlist-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -541,7 +526,6 @@ body {
     background: var(--text-secondary);
 }
 
-/* Responsive */
 @media (max-width: 900px) {
     body {
         height: auto;

@@ -3,7 +3,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
 (function () {
     'use strict';
 
-    // DOM elements
     const playlistInput = document.getElementById('playlist-input');
     const shuffleBtn = document.getElementById('shuffle-btn');
     const loadingEl = document.getElementById('loading');
@@ -25,7 +24,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     const playlistColumn = document.getElementById('playlist-column');
     const shuffleAgainBtn = document.getElementById('shuffle-again-btn');
 
-    // State
     let originalVideos = [];
     let shuffledVideos = [];
     let currentIndex = -1;
@@ -33,7 +31,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     let playerReady = false;
     let pendingVideoId = null;
 
-    // --- Theme ---
     function initTheme() {
         const stored = localStorage.getItem('yt-shuffle-theme');
         if (stored) {
@@ -49,7 +46,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         } else if (current === 'light') {
             next = 'dark';
         } else {
-            // No manual override — check system preference
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             next = prefersDark ? 'light' : 'dark';
         }
@@ -60,7 +56,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     themeToggle.addEventListener('click', toggleTheme);
     initTheme();
 
-    // --- URL Params ---
     function getUrlParams() {
         const params = new URLSearchParams(window.location.search);
         return {
@@ -74,10 +69,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         history.pushState(null, '', url.toString());
     }
 
-    // --- Playlist ID Extraction ---
     function extractPlaylistId(input) {
         input = input.trim();
-        // Direct ID (no URL chars)
         if (/^[A-Za-z0-9_-]+$/.test(input) && input.length > 10) {
             return input;
         }
@@ -85,13 +78,10 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             const url = new URL(input);
             const list = url.searchParams.get('list');
             if (list) return list;
-        } catch (_) {
-            // not a URL
-        }
+        } catch (_) {}
         return input;
     }
 
-    // --- YouTube Data API ---
     async function fetchPlaylistItems(playlistId) {
         let allItems = [];
         let pageToken = '';
@@ -129,7 +119,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         return allItems;
     }
 
-    // --- Fisher-Yates Shuffle ---
     function fisherYatesShuffle(arr) {
         const shuffled = [...arr];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -139,7 +128,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         return shuffled;
     }
 
-    // --- YouTube IFrame Player API ---
     function loadYouTubeAPI() {
         if (window.YT && window.YT.Player) return Promise.resolve();
         return new Promise((resolve) => {
@@ -150,7 +138,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         });
     }
 
-    // Unmute on first user interaction (for muted autoplay on URL loads)
     function setupAutoUnmute() {
         var events = ['mousedown', 'pointerdown', 'keydown', 'touchstart'];
         function handleInteraction() {
@@ -198,7 +185,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                         }
                     },
                     onError: function () {
-                        // Skip unavailable videos
                         playNext();
                     },
                 },
@@ -206,7 +192,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         });
     }
 
-    // --- Playback ---
     function playVideo(index) {
         if (index < 0 || index >= shuffledVideos.length) return;
         currentIndex = index;
@@ -242,10 +227,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         const currentVideo = shuffledVideos[currentIndex];
         shuffledVideos = fisherYatesShuffle(originalVideos);
 
-        // Keep current video at its new position
         const newIndex = shuffledVideos.findIndex(v => v.videoId === currentVideo.videoId);
         if (newIndex !== -1) {
-            // Move current video to index 0, shift the rest
             [shuffledVideos[0], shuffledVideos[newIndex]] = [shuffledVideos[newIndex], shuffledVideos[0]];
             currentIndex = 0;
         }
@@ -254,7 +237,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         updateActiveItem();
     }
 
-    // --- Playlist Rendering ---
     function renderPlaylist() {
         const filter = filterInput.value.toLowerCase();
         playlistList.innerHTML = '';
@@ -288,7 +270,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             item.classList.toggle('active', idx === currentIndex);
         });
 
-        // Scroll so the active item is the second visible element
         const activeEl = playlistList.querySelector('.playlist-item.active');
         if (activeEl) {
             const prevSibling = activeEl.previousElementSibling;
@@ -297,7 +278,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         }
     }
 
-    // --- Sync playlist height to player column ---
     function syncPlaylistHeight() {
         if (contentEl.classList.contains('hidden')) return;
         playlistColumn.style.maxHeight = playerColumn.offsetHeight + 'px';
@@ -308,7 +288,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         requestAnimationFrame(syncPlaylistHeight);
     });
 
-    // --- Helpers ---
     function escapeHtml(str) {
         const div = document.createElement('div');
         div.textContent = str;
@@ -342,7 +321,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         shuffleBtn.disabled = on;
     }
 
-    // --- Main Load Flow ---
     async function loadPlaylist(rawInput, hasUserGesture) {
         hideError();
         const playlistId = extractPlaylistId(rawInput);
@@ -389,7 +367,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         }
     }
 
-    // --- Event Listeners ---
     shuffleBtn.addEventListener('click', () => {
         const val = playlistInput.value.trim();
         if (val) loadPlaylist(val, true);
@@ -415,7 +392,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         playlistInput.focus();
     });
 
-    // --- Init from URL ---
     const params = getUrlParams();
     if (params.pid) {
         playlistInput.value = params.pid;
