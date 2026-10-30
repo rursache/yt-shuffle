@@ -193,6 +193,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             }
 
             const player = new YT.Player('player', {
+                host: 'https://www.youtube-nocookie.com',
                 videoId: videoId,
                 playerVars: {
                     autoplay: 1,
