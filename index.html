@@ -9,6 +9,14 @@
     <link rel="preconnect" href="https://www.youtube.com">
     <link rel="preconnect" href="https://i.ytimg.com">
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        try {
+            var storedTheme = localStorage.getItem('yt-shuffle-theme');
+            if (storedTheme === 'light' || storedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', storedTheme);
+            }
+        } catch (_) {}
+    </script>
 </head>
 <body>
     <header class="header">

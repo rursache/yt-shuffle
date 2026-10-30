@@ -31,13 +31,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     let playerReady = false;
     let pendingVideoId = null;
 
-    function initTheme() {
-        const stored = localStorage.getItem('yt-shuffle-theme');
-        if (stored) {
-            document.documentElement.setAttribute('data-theme', stored);
-        }
-    }
-
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme');
         let next;
@@ -50,11 +43,12 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             next = prefersDark ? 'light' : 'dark';
         }
         document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('yt-shuffle-theme', next);
+        try {
+            localStorage.setItem('yt-shuffle-theme', next);
+        } catch (_) {}
     }
 
     themeToggle.addEventListener('click', toggleTheme);
-    initTheme();
 
     function getUrlParams() {
         const params = new URLSearchParams(window.location.search);
