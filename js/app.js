@@ -328,7 +328,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         if (activeEl) {
             const prevSibling = activeEl.previousElementSibling;
             const scrollTarget = prevSibling || activeEl;
-            scrollTarget.scrollIntoView({ block: 'start', behavior: 'smooth' });
+            const offset = scrollTarget.getBoundingClientRect().top - playlistList.getBoundingClientRect().top;
+            playlistList.scrollTo({ top: playlistList.scrollTop + offset, behavior: 'smooth' });
         }
     }
 
