@@ -67,17 +67,19 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         history.pushState(null, '', url.toString());
     }
 
+    const PLAYLIST_ID_PATTERN = /^[A-Za-z0-9_-]{10,64}$/;
+
     function extractPlaylistId(input) {
         input = input.trim();
-        if (/^[A-Za-z0-9_-]+$/.test(input) && input.length > 10) {
+        if (PLAYLIST_ID_PATTERN.test(input)) {
             return input;
         }
         try {
-            const url = new URL(input);
+            const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(input) ? input : `https://${input}`);
             const list = url.searchParams.get('list');
-            if (list) return list;
+            if (list && PLAYLIST_ID_PATTERN.test(list)) return list;
         } catch (_) {}
-        return input;
+        return null;
     }
 
     const API_ERROR_MESSAGES = {
@@ -372,6 +374,10 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         hideError();
         const playlistId = extractPlaylistId(rawInput);
         if (!playlistId) {
+            if (shuffledVideos.length === 0) {
+                inputSection.classList.remove('hidden');
+                changePlaylistBtn.classList.add('hidden');
+            }
             showError('Please enter a valid YouTube playlist URL or ID.');
             return;
         }
