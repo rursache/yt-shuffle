@@ -61,10 +61,15 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         };
     }
 
-    function updateUrl(playlistId) {
+    function updateUrl(playlistId, replace) {
+        if (getUrlParams().pid === playlistId) return;
         const url = new URL(window.location.href);
         url.searchParams.set('pid', playlistId);
-        history.pushState(null, '', url.toString());
+        if (replace) {
+            history.replaceState(null, '', url.toString());
+        } else {
+            history.pushState(null, '', url.toString());
+        }
     }
 
     const PLAYLIST_ID_PATTERN = /^[A-Za-z0-9_-]{10,64}$/;
@@ -370,7 +375,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         shuffleBtn.disabled = on;
     }
 
-    async function loadPlaylist(rawInput, hasUserGesture) {
+    async function loadPlaylist(rawInput, hasUserGesture, fromHistory = false) {
         hideError();
         const playlistId = extractPlaylistId(rawInput);
         if (!playlistId) {
@@ -411,7 +416,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             filterInput.value = '';
             renderPlaylist();
 
-            updateUrl(playlistId);
+            updateUrl(playlistId, fromHistory);
 
             setLoading(false);
             contentEl.classList.remove('hidden');
@@ -464,11 +469,43 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         playlistInput.focus();
     });
 
-    const params = getUrlParams();
-    if (params.pid) {
+    function resetToInput() {
+        loadId++;
+        if (loadController) loadController.abort();
+        if (ytPlayer) {
+            ytPlayer.destroy();
+            ytPlayer = null;
+            playerReady = false;
+        }
+        originalVideos = [];
+        shuffledVideos = [];
+        currentIndex = -1;
+        pendingVideoId = null;
+        playlistInput.value = '';
+        setLoading(false);
+        hideError();
+        contentEl.classList.add('hidden');
+        inputSection.classList.remove('hidden');
+        changePlaylistBtn.classList.add('hidden');
+    }
+
+    function loadFromUrl(hasUserGesture) {
+        const params = getUrlParams();
+        if (!params.pid) {
+            resetToInput();
+            return;
+        }
         playlistInput.value = params.pid;
         inputSection.classList.add('hidden');
         changePlaylistBtn.classList.remove('hidden');
-        loadPlaylist(params.pid, false);
+        loadPlaylist(params.pid, hasUserGesture, true);
+    }
+
+    window.addEventListener('popstate', () => {
+        loadFromUrl(navigator.userActivation ? navigator.userActivation.hasBeenActive : false);
+    });
+
+    if (getUrlParams().pid) {
+        loadFromUrl(false);
     }
 })();
