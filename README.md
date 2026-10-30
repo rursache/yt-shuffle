@@ -10,7 +10,7 @@ YouTube's built-in shuffle is broken for large playlists. When you play a playli
 
 YT Shuffle uses the YouTube Data API to fetch **every single video** in the playlist, regardless of size, by paginating through all results. It then applies a proper [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) to the complete list. Every video has an equal chance of being played.
 
-Everything runs client-side in your browser. No backend, no tracking, no accounts.
+Shuffling and playback happen in your browser. The only server side piece is a small Cloudflare Worker that forwards playlist requests to the YouTube Data API so the API key stays private. Videos are embedded from youtube-nocookie.com. No tracking, no accounts.
 
 ## Features
 
@@ -38,7 +38,8 @@ YouTube API requests are proxied through a Cloudflare Worker so the API key is n
 1. Create a YouTube Data API v3 key in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Create a [Cloudflare Worker](https://workers.cloudflare.com/) and deploy the proxy code from `worker/worker.js`
 3. Add your YouTube API key as a secret named `YOUTUBE_API_KEY` in the worker settings
-4. Update `WORKER_URL` in `js/app.js` to point to your worker URL
+4. Set `ALLOWED_ORIGIN` in `worker/worker.js` to the origin your site is served from (for example `https://yourname.github.io`)
+5. Update `WORKER_URL` in `js/app.js` to point to your worker URL
 
 ## Credits
 
