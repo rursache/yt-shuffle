@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { mockWorker, player, BROKEN } from './support/mock-worker.js';
+import { mockYouTubeApi, player, BROKEN } from './support/mock-youtube-api.js';
 
 const PLAYING = 1;
 
@@ -14,7 +14,7 @@ async function loadFromInput(page, value) {
 
 test.describe('playlist loading', () => {
     test('fetches every page and starts playback muted from a shared link', async ({ page }) => {
-        const requests = await mockWorker(page);
+        const requests = await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
 
         await expect(page.locator('#playlist-count')).toHaveText('9 videos');
@@ -29,13 +29,13 @@ test.describe('playlist loading', () => {
     });
 
     test('uses singular wording for a one video playlist', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLsinglevideo01');
         await expect(page.locator('#playlist-count')).toHaveText('1 video');
     });
 
     test('accepts links without a scheme', async ({ page }) => {
-        const requests = await mockWorker(page);
+        const requests = await mockYouTubeApi(page);
         await page.goto('/');
         await loadFromInput(page, 'www.youtube.com/watch?v=abc&list=PLsinglevideo01&index=2');
         await expect(page.locator('#playlist-count')).toHaveText('1 video');
@@ -43,8 +43,8 @@ test.describe('playlist loading', () => {
         await expect(page).toHaveURL(/\?pid=PLsinglevideo01$/);
     });
 
-    test('rejects input without a playlist before calling the worker', async ({ page }) => {
-        const requests = await mockWorker(page);
+    test('rejects input without a playlist before calling the API', async ({ page }) => {
+        const requests = await mockYouTubeApi(page);
         await page.goto('/');
         await loadFromInput(page, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
         await expect(page.locator('#error')).toHaveText('Please enter a valid YouTube playlist URL or ID.');
@@ -52,7 +52,7 @@ test.describe('playlist loading', () => {
     });
 
     test('shows the input again when a shared link is invalid', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=nope');
         await expect(page.locator('#error')).toBeVisible();
         await expect(page.locator('#input-section')).toBeVisible();
@@ -60,7 +60,7 @@ test.describe('playlist loading', () => {
     });
 
     test('skips deleted, private and malformed items', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLplaceholders1');
         await expect(page.locator('#error')).toHaveText('No playable videos found in this playlist.');
         await expect(page.locator('#input-section')).toBeVisible();
@@ -72,14 +72,20 @@ test.describe('playlist loading', () => {
         ['PLquota00000001', 'The daily YouTube API quota has been used up. Please try again tomorrow.'],
     ]) {
         test(`maps the ${playlistId} API error to a readable message`, async ({ page }) => {
-            await mockWorker(page);
+            await mockYouTubeApi(page);
             await page.goto(`/?pid=${playlistId}`);
             await expect(page.locator('#error')).toHaveText(message);
         });
     }
 
+    test('explains when YouTube cannot be reached', async ({ page }) => {
+        await mockYouTubeApi(page);
+        await page.goto('/?pid=PLoffline000001');
+        await expect(page.locator('#error')).toHaveText('Could not reach YouTube. Check your connection and try again.');
+    });
+
     test('lets the newest load win when loads overlap', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/');
         await page.locator('#playlist-input').fill('PLslowplaylist1');
         await page.locator('#playlist-input').press('Enter');
@@ -93,7 +99,7 @@ test.describe('playlist loading', () => {
     });
 
     test('restores the previous playlist when a reload fails', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
 
@@ -110,7 +116,7 @@ test.describe('playlist loading', () => {
 
 test.describe('playback', () => {
     test('moves forward and back through the shuffled list', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
 
@@ -125,7 +131,7 @@ test.describe('playback', () => {
     });
 
     test('keeps the current video first after a reshuffle', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
 
@@ -136,7 +142,7 @@ test.describe('playback', () => {
     });
 
     test('skips a video that cannot be embedded', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
 
@@ -149,7 +155,7 @@ test.describe('playback', () => {
     });
 
     test('stops and explains when no video can be embedded', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLallbroken0001');
         await expect(page.locator('#error')).toHaveText('None of the videos in this playlist can be played in an embedded player.');
 
@@ -158,7 +164,7 @@ test.describe('playback', () => {
     });
 
     test('plays a row with the keyboard', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
 
@@ -172,7 +178,7 @@ test.describe('playback', () => {
     });
 
     test('filters the list without losing the active row', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await page.locator('#filter-input').fill('Video 2');
         await expect(page.locator('.playlist-item')).toHaveCount(1);
@@ -182,7 +188,7 @@ test.describe('playback', () => {
     });
 
     test('unmutes on the first real click on the page', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
         expect(await player(page).muted()).toBe(true);
@@ -193,7 +199,7 @@ test.describe('playback', () => {
     });
 
     test('plays with sound when started from the input', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/');
         await loadFromInput(page, 'PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
@@ -203,7 +209,7 @@ test.describe('playback', () => {
 
 test.describe('navigation', () => {
     test('follows back and forward between playlists and home', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/');
         await loadFromInput(page, 'PLmultipage0001');
         await expect(page.locator('#playlist-count')).toHaveText('9 videos');
@@ -226,7 +232,7 @@ test.describe('navigation', () => {
     });
 
     test('does not add a history entry for the playlist already in the URL', async ({ page }) => {
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLsinglevideo01');
         await expect(page.locator('#playlist-count')).toHaveText('1 video');
         expect(await page.evaluate(() => history.length)).toBe(2);
@@ -236,7 +242,7 @@ test.describe('navigation', () => {
 test.describe('layout', () => {
     test('scrolls only the playlist on narrow screens', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect.poll(() => player(page).state()).toBe(PLAYING);
 
@@ -250,7 +256,7 @@ test.describe('layout', () => {
 
     test('keeps the controls reachable on short desktop windows', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 600 });
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect(page.locator('#content')).toBeVisible();
 
@@ -261,7 +267,7 @@ test.describe('layout', () => {
 
     test('matches the playlist height to the player column', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLmultipage0001');
         await expect(page.locator('#content')).toBeVisible();
 
@@ -291,7 +297,7 @@ test.describe('theme', () => {
         await page.addInitScript(() => {
             Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('blocked', 'SecurityError'); } });
         });
-        await mockWorker(page);
+        await mockYouTubeApi(page);
         await page.goto('/?pid=PLsinglevideo01');
         await expect(page.locator('#playlist-count')).toHaveText('1 video');
         await page.locator('#theme-toggle').click();

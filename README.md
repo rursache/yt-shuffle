@@ -10,7 +10,7 @@ YouTube's built-in shuffle is broken for large playlists. When you play a playli
 
 YT Shuffle uses the YouTube Data API to fetch **every single video** in the playlist, regardless of size, by paginating through all results. It then applies a proper [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle) to the complete list. Every video has an equal chance of being played.
 
-Shuffling and playback happen in your browser. The only server side piece is a small Cloudflare Worker that forwards playlist requests to the YouTube Data API so the API key stays private. Videos are embedded from youtube-nocookie.com. No tracking, no accounts.
+Everything runs in your browser on a static GitHub Pages site. Playlists are read straight from the YouTube Data API and videos are embedded from youtube-nocookie.com. No backend, no tracking, no accounts.
 
 ## Features
 
@@ -33,17 +33,18 @@ Or link directly: `https://rursache.github.io/yt-shuffle/?pid=YOUR_PLAYLIST_ID`
 
 ## Forking
 
-YouTube API requests are proxied through a Cloudflare Worker so the API key is never exposed in client-side code. If you fork this repo, you'll need to set up your own worker:
+The API key is injected into `js/app.js` when the site is deployed, so it ends up public in the browser. That is the normal setup for a browser key as long as it is restricted. If you fork this repo:
 
 1. Create a YouTube Data API v3 key in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Create a [Cloudflare Worker](https://workers.cloudflare.com/) and deploy the proxy code from `worker/worker.js`
-3. Add your YouTube API key as a secret named `YOUTUBE_API_KEY` in the worker settings
-4. Set `ALLOWED_ORIGIN` in `worker/worker.js` to the origin your site is served from (for example `https://yourname.github.io`)
-5. Update `WORKER_URL` in `js/app.js` to point to your worker URL
+2. Restrict it to your site under **Application restrictions → Websites** (for example `https://yourname.github.io/*`) and to the YouTube Data API v3 under **API restrictions**
+3. Add it as a repository secret named `YOUTUBE_API_KEY`
+4. Enable GitHub Pages with **GitHub Actions** as the source and push to `master`
+
+To try the site locally, replace `__YOUTUBE_API_KEY__` in `js/app.js` with a key that allows your local origin, and don't commit it
 
 ## Testing
 
-The test suite uses [Playwright](https://playwright.dev/). Browser tests serve the site locally, answer Worker requests with mock playlists and play through the real YouTube embed, so they need an internet connection. Worker tests run the proxy against a stubbed YouTube API.
+The test suite uses [Playwright](https://playwright.dev/). Browser tests serve the site locally, answer YouTube Data API requests with mock playlists and play through the real YouTube embed, so they need an internet connection.
 
 ```bash
 npm install

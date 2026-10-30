@@ -1,4 +1,4 @@
-const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
+const API_KEY = '__YOUTUBE_API_KEY__';
 
 (function () {
     'use strict';
@@ -119,8 +119,21 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         let pageToken = '';
 
         do {
-            const url = `${WORKER_URL}?playlistId=${encodeURIComponent(playlistId)}${pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : ''}`;
-            const res = await fetch(url, { signal });
+            const params = new URLSearchParams({
+                part: 'snippet,contentDetails',
+                maxResults: '50',
+                playlistId,
+                key: API_KEY,
+            });
+            if (pageToken) params.set('pageToken', pageToken);
+
+            let res;
+            try {
+                res = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params}`, { signal });
+            } catch (err) {
+                if (err.name === 'AbortError') throw err;
+                throw new Error('Could not reach YouTube. Check your connection and try again.');
+            }
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));

@@ -1,3 +1,5 @@
+import { expect } from '@playwright/test';
+
 export const PLAYABLE = ['M7lc1UVf-VE', 'dQw4w9WgXcQ', 'jNQXAC9IVRw', '9bZkp7q19f0', 'aqz-KE-bpKQ', 'ScMzIvxBSi4', 'YE7VzlLtp-4', 'LXb3EKWsInQ'];
 export const BROKEN = 'ZZZZZZZZZZZ';
 
@@ -35,20 +37,28 @@ export const PLAYLISTS = {
             { snippet: { title: 'Missing id' } },
         ]],
     },
+    PLoffline000001: { offline: true },
     PLnotfound00001: { error: apiError(404, 'playlistNotFound', "The playlist identified with the request's <code>playlistId</code> parameter cannot be found.") },
     PLprivate000001: { error: apiError(403, 'playlistItemsNotAccessible', 'The request is not properly authorized.') },
     PLquota00000001: { error: apiError(403, 'quotaExceeded', 'The request cannot be completed because you have exceeded your <a href="/youtube/v3/getting-started#quota">quota</a>.') },
 };
 
-export async function mockWorker(page) {
+export async function mockYouTubeApi(page) {
     const requests = [];
-    await page.route((url) => url.hostname.endsWith('workers.dev'), async (route) => {
+    await page.route((url) => url.hostname === 'www.googleapis.com' && url.pathname === '/youtube/v3/playlistItems', async (route) => {
         const url = new URL(route.request().url());
         const playlistId = url.searchParams.get('playlistId');
         const pageToken = url.searchParams.get('pageToken');
         requests.push({ playlistId, pageToken });
+        expect(url.searchParams.get('key')).toBe('__YOUTUBE_API_KEY__');
+        expect(url.searchParams.get('part')).toBe('snippet,contentDetails');
+        expect(url.searchParams.get('maxResults')).toBe('50');
 
         const playlist = PLAYLISTS[playlistId];
+        if (playlist?.offline) {
+            await route.abort('internetdisconnected');
+            return;
+        }
         if (playlist?.delay) await new Promise((r) => setTimeout(r, playlist.delay));
 
         let status = 200;
