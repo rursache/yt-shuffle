@@ -41,6 +41,16 @@ YouTube API requests are proxied through a Cloudflare Worker so the API key is n
 4. Set `ALLOWED_ORIGIN` in `worker/worker.js` to the origin your site is served from (for example `https://yourname.github.io`)
 5. Update `WORKER_URL` in `js/app.js` to point to your worker URL
 
+## Testing
+
+The test suite uses [Playwright](https://playwright.dev/). Browser tests serve the site locally, answer Worker requests with mock playlists and play through the real YouTube embed, so they need an internet connection. Worker tests run the proxy against a stubbed YouTube API.
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
 ## Credits
 
 Inspired by [ytplr](https://ytplr.bitbucket.io/).
