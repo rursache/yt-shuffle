@@ -31,6 +31,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     let playerReady = false;
     let pendingVideoId = null;
     let loadId = 0;
+    let failedVideoIds = new Set();
+    let direction = 1;
     let loadController = null;
 
     function toggleTheme() {
@@ -194,7 +196,9 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                     },
                     onError: function () {
                         if (player !== ytPlayer) return;
-                        playNext();
+                        const video = shuffledVideos[currentIndex];
+                        if (video) failedVideoIds.add(video.videoId);
+                        step(direction);
                     },
                 },
             });
@@ -202,9 +206,10 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         });
     }
 
-    function playVideo(index) {
+    function playVideo(index, dir = 1) {
         if (index < 0 || index >= shuffledVideos.length) return;
         currentIndex = index;
+        direction = dir;
         const video = shuffledVideos[index];
 
         nowPlayingTitle.textContent = video.title;
@@ -220,16 +225,27 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         updateActiveItem();
     }
 
+    function step(dir) {
+        const total = shuffledVideos.length;
+        if (total === 0) return;
+        let index = currentIndex;
+        for (let i = 0; i < total; i++) {
+            index = (index + dir + total) % total;
+            if (!failedVideoIds.has(shuffledVideos[index].videoId)) {
+                playVideo(index, dir);
+                return;
+            }
+        }
+        if (ytPlayer && playerReady) ytPlayer.stopVideo();
+        showError('None of the videos in this playlist can be played in an embedded player.');
+    }
+
     function playNext() {
-        if (shuffledVideos.length === 0) return;
-        const next = (currentIndex + 1) % shuffledVideos.length;
-        playVideo(next);
+        step(1);
     }
 
     function playPrev() {
-        if (shuffledVideos.length === 0) return;
-        const prev = (currentIndex - 1 + shuffledVideos.length) % shuffledVideos.length;
-        playVideo(prev);
+        step(-1);
     }
 
     function handleReshuffle() {
@@ -361,6 +377,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             shuffledVideos = fisherYatesShuffle(originalVideos);
             currentIndex = 0;
             pendingVideoId = null;
+            failedVideoIds = new Set();
+            direction = 1;
 
             playlistCount.textContent = `${shuffledVideos.length} videos`;
             filterInput.value = '';
