@@ -415,6 +415,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                 loadYouTubeAPI(),
             ]);
             if (thisLoad !== loadId) return;
+            hideError();
             if (videos.length === 0) {
                 throw new Error('No playable videos found in this playlist.');
             }
@@ -446,6 +447,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             await createPlayer(firstVideo.videoId, hasUserGesture);
         } catch (err) {
             if (thisLoad !== loadId) return;
+            loadController.abort();
             setLoading(false);
             if (shuffledVideos.length > 0) {
                 contentEl.classList.remove('hidden');
