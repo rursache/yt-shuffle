@@ -338,10 +338,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         playlistColumn.style.maxHeight = playerColumn.offsetHeight + 'px';
     }
 
-    window.addEventListener('resize', () => {
-        playlistColumn.style.maxHeight = '';
-        requestAnimationFrame(syncPlaylistHeight);
-    });
+    new ResizeObserver(syncPlaylistHeight).observe(playerColumn);
 
     function escapeHtml(str) {
         const div = document.createElement('div');
@@ -430,8 +427,6 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             nowPlayingDate.textContent = formatDate(firstVideo.publishedAt);
 
             await createPlayer(firstVideo.videoId, hasUserGesture);
-            if (thisLoad !== loadId) return;
-            syncPlaylistHeight();
         } catch (err) {
             if (thisLoad !== loadId) return;
             setLoading(false);
