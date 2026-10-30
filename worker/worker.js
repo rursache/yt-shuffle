@@ -1,6 +1,6 @@
 const ALLOWED_ORIGIN = 'https://rursache.github.io';
 const PLAYLIST_ID_PATTERN = /^[A-Za-z0-9_-]{10,64}$/;
-const PAGE_TOKEN_PATTERN = /^[A-Za-z0-9_-]{1,256}$/;
+const PAGE_TOKEN_PATTERN = /^[A-Za-z0-9_-]{1,1024}$/;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
