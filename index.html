@@ -57,17 +57,17 @@
         <section id="input-section" class="input-section">
             <p class="input-tagline">A true shuffle for public YouTube playlists - Loads the entire playlist and shuffles it locally</p>
             <div class="input-wrapper">
-                <input type="text" id="playlist-input" class="playlist-input" placeholder="Paste YouTube playlist URL or ID..." autocomplete="off">
+                <input type="text" id="playlist-input" class="playlist-input" placeholder="Paste YouTube playlist URL or ID..." aria-label="YouTube playlist URL or ID" autocomplete="off">
                 <button id="shuffle-btn" class="shuffle-btn">Shuffle &amp; Play</button>
             </div>
         </section>
 
-        <div id="loading" class="loading hidden">
+        <div id="loading" class="loading hidden" role="status">
             <div class="spinner"></div>
             <p>Loading playlist...</p>
         </div>
 
-        <div id="error" class="error hidden"></div>
+        <div id="error" class="error hidden" role="alert"></div>
 
         <section id="content" class="content hidden">
             <div class="content-grid">
@@ -100,7 +100,7 @@
                             <h3 id="playlist-count" class="playlist-count"></h3>
                             <button id="shuffle-again-btn" class="shuffle-again-btn">Shuffle Again</button>
                         </div>
-                        <input type="text" id="filter-input" class="filter-input" placeholder="Filter videos...">
+                        <input type="text" id="filter-input" class="filter-input" placeholder="Filter videos..." aria-label="Filter videos">
                     </div>
                     <ul id="playlist-list" class="playlist-list"></ul>
                 </div>

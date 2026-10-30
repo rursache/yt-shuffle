@@ -294,7 +294,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
 
     function renderPlaylist() {
         const filter = filterInput.value.toLowerCase();
-        playlistList.innerHTML = '';
+        const fragment = document.createDocumentFragment();
 
         shuffledVideos.forEach((video, index) => {
             if (filter && !video.title.toLowerCase().includes(filter) && !video.channel.toLowerCase().includes(filter)) {
@@ -304,6 +304,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             const li = document.createElement('li');
             li.className = 'playlist-item' + (index === currentIndex ? ' active' : '');
             li.dataset.index = index;
+            li.tabIndex = 0;
+            if (index === currentIndex) li.setAttribute('aria-current', 'true');
 
             li.innerHTML = `
                 <span class="playlist-item-index">${index + 1}</span>
@@ -313,9 +315,10 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                 </div>
             `;
 
-            li.addEventListener('click', () => playVideo(index));
-            playlistList.appendChild(li);
+            fragment.appendChild(li);
         });
+
+        playlistList.replaceChildren(fragment);
     }
 
     function updateActiveItem() {
@@ -323,6 +326,11 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         items.forEach(item => {
             const idx = parseInt(item.dataset.index, 10);
             item.classList.toggle('active', idx === currentIndex);
+            if (idx === currentIndex) {
+                item.setAttribute('aria-current', 'true');
+            } else {
+                item.removeAttribute('aria-current');
+            }
         });
 
         const activeEl = playlistList.querySelector('.playlist-item.active');
@@ -411,7 +419,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             failedVideoIds = new Set();
             direction = 1;
 
-            playlistCount.textContent = `${shuffledVideos.length} videos`;
+            playlistCount.textContent = `${shuffledVideos.length} ${shuffledVideos.length === 1 ? 'video' : 'videos'}`;
             filterInput.value = '';
             renderPlaylist();
 
@@ -459,6 +467,19 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     shuffleAgainBtn.addEventListener('click', handleReshuffle);
 
     filterInput.addEventListener('input', renderPlaylist);
+
+    playlistList.addEventListener('click', (e) => {
+        const item = e.target.closest('.playlist-item');
+        if (item) playVideo(parseInt(item.dataset.index, 10));
+    });
+
+    playlistList.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const item = e.target.closest('.playlist-item');
+        if (!item) return;
+        e.preventDefault();
+        playVideo(parseInt(item.dataset.index, 10));
+    });
 
     changePlaylistBtn.addEventListener('click', () => {
         inputSection.classList.remove('hidden');
