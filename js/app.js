@@ -182,14 +182,15 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     }
 
     function setupAutoUnmute() {
-        var events = ['mousedown', 'pointerdown', 'keydown', 'touchstart'];
+        const events = ['mousedown', 'pointerdown', 'pointerup', 'keydown', 'touchend', 'click'];
         function handleInteraction() {
+            if (navigator.userActivation && !navigator.userActivation.isActive) return;
             if (ytPlayer && ytPlayer.isMuted()) {
                 ytPlayer.unMute();
             }
-            events.forEach(function (e) { document.removeEventListener(e, handleInteraction); });
+            events.forEach((e) => document.removeEventListener(e, handleInteraction, true));
         }
-        events.forEach(function (e) { document.addEventListener(e, handleInteraction); });
+        events.forEach((e) => document.addEventListener(e, handleInteraction, true));
     }
 
     function createPlayer(videoId, hasUserGesture) {
