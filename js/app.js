@@ -80,29 +80,50 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         return input;
     }
 
+    const API_ERROR_MESSAGES = {
+        playlistNotFound: 'Playlist not found. Make sure it exists and is public or unlisted.',
+        playlistItemsNotAccessible: 'This playlist is private. Only public or unlisted playlists can be shuffled.',
+        watchLaterNotAccessible: 'Watch Later is private and cannot be shuffled.',
+        quotaExceeded: 'The daily YouTube API quota has been used up. Please try again tomorrow.',
+        dailyLimitExceeded: 'The daily YouTube API quota has been used up. Please try again tomorrow.',
+    };
+
+    function apiErrorMessage(data, status) {
+        const reason = data?.error?.errors?.[0]?.reason;
+        if (reason && API_ERROR_MESSAGES[reason]) return API_ERROR_MESSAGES[reason];
+        const message = data?.error?.message;
+        if (message) {
+            return new DOMParser().parseFromString(message, 'text/html').body.textContent;
+        }
+        return `Failed to load playlist (HTTP ${status}).`;
+    }
+
+    function isPlayableItem(item) {
+        const snippet = item.snippet;
+        if (!snippet?.resourceId?.videoId) return false;
+        if (snippet.videoOwnerChannelId) return true;
+        return snippet.title !== 'Deleted video' && snippet.title !== 'Private video';
+    }
+
     async function fetchPlaylistItems(playlistId, signal) {
         let allItems = [];
         let pageToken = '';
 
         do {
-            const url = `${WORKER_URL}?playlistId=${encodeURIComponent(playlistId)}${pageToken ? '&pageToken=' + pageToken : ''}`;
+            const url = `${WORKER_URL}?playlistId=${encodeURIComponent(playlistId)}${pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : ''}`;
             const res = await fetch(url, { signal });
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
-                const msg = data?.error?.message || `HTTP ${res.status}`;
-                throw new Error(msg);
+                throw new Error(apiErrorMessage(data, res.status));
             }
 
             const data = await res.json();
             const items = (data.items || [])
-                .filter(item => {
-                    const title = item.snippet?.title || '';
-                    return title !== 'Deleted video' && title !== 'Private video';
-                })
+                .filter(isPlayableItem)
                 .map(item => ({
                     videoId: item.snippet.resourceId.videoId,
-                    title: item.snippet.title,
+                    title: item.snippet.title || '',
                     channel: item.snippet.videoOwnerChannelTitle || '',
                     thumbnail: item.snippet.thumbnails?.medium?.url
                         || item.snippet.thumbnails?.default?.url
