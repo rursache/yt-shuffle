@@ -30,6 +30,8 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
     let ytPlayer = null;
     let playerReady = false;
     let pendingVideoId = null;
+    let loadId = 0;
+    let loadController = null;
 
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme');
@@ -76,13 +78,13 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         return input;
     }
 
-    async function fetchPlaylistItems(playlistId) {
+    async function fetchPlaylistItems(playlistId, signal) {
         let allItems = [];
         let pageToken = '';
 
         do {
             const url = `${WORKER_URL}?playlistId=${encodeURIComponent(playlistId)}${pageToken ? '&pageToken=' + pageToken : ''}`;
-            const res = await fetch(url);
+            const res = await fetch(url, { signal });
 
             if (!res.ok) {
                 const data = await res.json().catch(() => ({}));
@@ -160,7 +162,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                 playerReady = false;
             }
 
-            ytPlayer = new YT.Player('player', {
+            const player = new YT.Player('player', {
                 videoId: videoId,
                 playerVars: {
                     autoplay: 1,
@@ -169,29 +171,34 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
                 },
                 events: {
                     onReady: function () {
+                        if (player !== ytPlayer) return;
                         playerReady = true;
                         if (!hasUserGesture) {
-                            ytPlayer.mute();
+                            player.mute();
                             setupAutoUnmute();
                         }
-                        ytPlayer.playVideo();
-                        resolve();
                         if (pendingVideoId) {
                             const vid = pendingVideoId;
                             pendingVideoId = null;
-                            ytPlayer.loadVideoById(vid);
+                            player.loadVideoById(vid);
+                        } else {
+                            player.playVideo();
                         }
+                        resolve();
                     },
                     onStateChange: function (event) {
+                        if (player !== ytPlayer) return;
                         if (event.data === YT.PlayerState.ENDED) {
                             playNext();
                         }
                     },
                     onError: function () {
+                        if (player !== ytPlayer) return;
                         playNext();
                     },
                 },
             });
+            ytPlayer = player;
         });
     }
 
@@ -332,17 +339,28 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             return;
         }
 
+        const thisLoad = ++loadId;
+        if (loadController) loadController.abort();
+        loadController = new AbortController();
+
         setLoading(true);
         contentEl.classList.add('hidden');
+        if (playerReady && ytPlayer) ytPlayer.pauseVideo();
 
         try {
-            originalVideos = await fetchPlaylistItems(playlistId);
-            if (originalVideos.length === 0) {
+            const [videos] = await Promise.all([
+                fetchPlaylistItems(playlistId, loadController.signal),
+                loadYouTubeAPI(),
+            ]);
+            if (thisLoad !== loadId) return;
+            if (videos.length === 0) {
                 throw new Error('No playable videos found in this playlist.');
             }
 
+            originalVideos = videos;
             shuffledVideos = fisherYatesShuffle(originalVideos);
             currentIndex = 0;
+            pendingVideoId = null;
 
             playlistCount.textContent = `${shuffledVideos.length} videos`;
             filterInput.value = '';
@@ -355,17 +373,23 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
             inputSection.classList.add('hidden');
             changePlaylistBtn.classList.remove('hidden');
 
-            await loadYouTubeAPI();
-
             const firstVideo = shuffledVideos[0];
             nowPlayingTitle.textContent = firstVideo.title;
             nowPlayingChannel.textContent = firstVideo.channel;
             nowPlayingDate.textContent = formatDate(firstVideo.publishedAt);
 
             await createPlayer(firstVideo.videoId, hasUserGesture);
+            if (thisLoad !== loadId) return;
             syncPlaylistHeight();
         } catch (err) {
+            if (thisLoad !== loadId) return;
             setLoading(false);
+            if (shuffledVideos.length > 0) {
+                contentEl.classList.remove('hidden');
+            } else {
+                inputSection.classList.remove('hidden');
+                changePlaylistBtn.classList.add('hidden');
+            }
             showError(err.message || 'Failed to load playlist.');
         }
     }
