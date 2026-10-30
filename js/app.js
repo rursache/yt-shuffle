@@ -292,6 +292,7 @@ const WORKER_URL = 'https://yt-shuffle.radu-ursache.workers.dev';
         if (originalVideos.length === 0) return;
         const currentVideo = shuffledVideos[currentIndex];
         shuffledVideos = fisherYatesShuffle(originalVideos);
+        failedVideoIds = new Set();
 
         const newIndex = shuffledVideos.findIndex(v => v.videoId === currentVideo.videoId);
         if (newIndex !== -1) {
